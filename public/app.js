@@ -30,7 +30,7 @@ const groups = [
 
 // 列宽定义（dp → px by CSS, unit=px at 1x）
 const colW = {
-  recv_time:148, WD:64, AB:44, flux:64, fluxR:56,
+  recv_time:148, WD:88, AB:44, flux:64, fluxR:56,
   wflux:56, wfluxR:56, co2:56, p:48, boxt:48, boxh:48, yacha:48
 };
 const skipCol = new Set(['date','client_ip']);
