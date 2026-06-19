@@ -31,23 +31,22 @@ jobs:
         with:
           xcode-version: '16.2'
 
-      - name: Accept license
+      - name: Accept license & install iOS platform
         run: |
           sudo xcodebuild -license accept 2>&1 || true
-          # Download and install iOS platform for Xcode 16.2
-          /Applications/Xcode_16.2.app/Contents/Developer/usr/bin/xcodebuild -downloadPlatform iOS 2>&1 || true
+          sudo xcode-select -s /Applications/Xcode_16.2.app 2>&1 || true
+          xcrun simctl runtime add "iOS 18.2 Simulator Runtime" 2>&1 || true
 
       - name: Build .app
         working-directory: ios/App
         run: |
-          /Applications/Xcode_16.2.app/Contents/Developer/usr/bin/xcodebuild \
-            -project App.xcodeproj \
+          xcodebuild -project App.xcodeproj \
             -scheme App \
             -configuration Release \
             -destination generic/platform=iOS \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
-            build 2>&1 | head -100
+            build
 
       - name: Package .ipa
         run: |
