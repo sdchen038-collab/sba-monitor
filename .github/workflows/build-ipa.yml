@@ -37,11 +37,10 @@ jobs:
           xcodebuild -project App.xcodeproj \
             -scheme App \
             -configuration Debug \
-            -sdk iphoneos \
-            -destination 'generic/platform=iOS' \
+            -destination generic/platform=iOS \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
-            build
+            build 2>&1 | tee build.log | tail -20
 
       - name: Package .ipa
         run: |
