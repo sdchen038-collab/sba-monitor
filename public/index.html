@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SBA监测">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<title>SBA监测</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro','Helvetica Neue',sans-serif;
+  background:#f0f4f8;color:#2d3748;-webkit-font-smoothing:antialiased;
+  padding:8px;min-height:100vh;overflow-x:hidden}
+.safe-top{height:env(safe-area-inset-top,0)}
+.container{max-width:100%;margin:0 auto}
+
+/* ── Header Gradien Card ── */
+.header-card{background:linear-gradient(135deg,#1a365d,#2b6cb0,#2b6cb0);
+  border-radius:12px;padding:16px 12px;margin-bottom:8px;text-align:center}
+.header-card h1{color:#fff;font-size:18px;font-weight:700;letter-spacing:0.5px}
+.header-card p{color:#D6E4F5;font-size:12px;margin-top:5px}
+
+/* ── Tool Card ── */
+.tool-card{background:#fff;border-radius:10px;padding:10px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.row{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.row+.row{margin-top:6px}
+.label{color:#718096;font-size:13px;white-space:nowrap}
+.input-url{flex:1;min-width:120px;height:36px;font-size:13px;padding:0 8px;
+  border:1px solid #e2e8f0;border-radius:5px;background:#fff;color:#2d3748;outline:none}
+.input-url:focus{border-color:#2b6cb0}
+.input-interval{width:48px;height:36px;font-size:13px;text-align:center;
+  border:1px solid #e2e8f0;border-radius:5px;background:#fff;color:#2d3748;outline:none}
+.input-interval:focus{border-color:#2b6cb0}
+.sec-label{color:#718096;font-size:13px}
+
+/* ── Buttons ── */
+.btn-group{display:flex;gap:8px;margin-top:6px}
+.btn{flex:1;height:44px;border:none;border-radius:10px;font-size:14px;font-weight:600;
+  color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:6px;transition:opacity .2s}
+.btn:active{opacity:.7}
+.btn-play{background:#38a169}
+.btn-stop{background:#e53e3e}
+.btn-refresh{background:#2b6cb0}
+.btn svg{width:16px;height:16px;fill:currentColor}
+
+/* ── Status ── */
+.status-card{background:#fff;border-radius:10px;padding:8px 10px;margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;min-height:34px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#38a169}
+.dot-gray{background:#a0aec0}
+.status-text{color:#718096;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── Table Card ── */
+.table-card{background:#fff;border-radius:8px;padding:6px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.table-title{font-size:14px;font-weight:700;color:#1a365d;display:flex;align-items:center;gap:6px}
+.badge{font-size:11px;color:#2b6cb0;background:#ebf4ff;border-radius:10px;padding:2px 7px;font-weight:400}
+.divider{height:1px;background:#e2e8f0;margin:4px 0}
+.table-wrap{height:230px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.th-row{display:flex;height:auto}
+.th-cell{font-size:12px;font-weight:700;color:#1a365d;padding:6px 6px;
+  white-space:nowrap;flex-shrink:0;text-align:left;background:#ebf4ff;
+  border-right:1px solid #e2e8f0}
+.th-cell.hl{background:#ebf8ff;font-weight:800}
+.th-cell:last-child{border-right:none}
+.tb-wrap{flex:1;overflow:hidden;position:relative}
+.tb-scroll{overflow-x:auto;overflow-y:auto;height:100%;-webkit-overflow-scrolling:touch}
+.tb-scroll::-webkit-scrollbar{width:0;height:0}
+.tr-row{display:flex;min-height:26px}
+.tr-row:nth-child(even){background:#f7fafc}
+.td-cell{font-size:12px;padding:3px 6px;white-space:nowrap;flex-shrink:0;
+  text-align:left;display:flex;align-items:center;min-height:26px;
+  border-right:1px solid #e2e8f0}
+.td-cell.hl{background:#ebf8ff;font-weight:700}
+.td-cell:last-child{border-right:none}
+.empty-msg{display:flex;align-items:center;justify-content:center;height:100%;color:#718096;font-size:13px}
+
+/* ── Footer ── */
+.footer{text-align:center;font-size:11px;color:#a0aec0;padding:16px 0 20px}
+
+/* ── Sync scroll ── */
+.th-scroll{overflow-x:hidden;overflow-y:hidden}
+</style>
+</head>
+<body>
+<div class="safe-top"></div>
+<div class="container" id="app">
+
+  <!-- Header -->
+  <div class="header-card">
+    <h1>三明站-土壤碳通量数据监控面板</h1>
+    <p>实时查看当日 CSV 的统计筛选结果</p>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="tool-card">
+    <div class="row">
+      <span class="label">地址</span>
+      <input class="input-url" id="serverUrl" value="http://183.252.112.79:8088" spellcheck="false">
+      <span class="label">间隔</span>
+      <input class="input-interval" id="interval" value="60" inputmode="numeric">
+      <span class="sec-label">秒</span>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-play" id="btnToggle">
+        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+        <span>启动</span>
+      </button>
+      <button class="btn btn-refresh" id="btnRefresh">
+        <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+        <span>立即刷新</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-card">
+    <span class="dot dot-green" id="statusDot"></span>
+    <span class="status-text" id="statusText">等待首次刷新…</span>
+  </div>
+
+  <!-- 5 Table Cards -->
+  <div id="tablesContainer"></div>
+
+  <!-- Footer -->
+  <div class="footer">SBA iOS Monitor · 数据来源于当日 CSV 实时分析</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

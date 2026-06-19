@@ -1,0 +1,9 @@
+node_modules/
+ios/App/build/
+Android/
+.gradle/
+build/
+.DS_Store
+*.log
+*.keystore
+local.properties

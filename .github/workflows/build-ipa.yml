@@ -1,0 +1,56 @@
+name: Build iOS .ipa
+
+on:
+  workflow_dispatch:  # 手动触发
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest   # GitHub 托管的 macOS 构建机
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 生成图标
+        run: node scripts/gen-icons.js
+
+      - name: 同步 Web 资源到 iOS
+        run: npx cap sync
+
+      - name: 设置 Xcode 版本
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.4'
+
+      - name: 构建 .ipa (debug)
+        run: |
+          cd ios/App
+          xcodebuild -project App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: 打包 .app → .ipa
+        run: |
+          mkdir -p Payload
+          cp -r ios/App/build/Build/Products/Debug-iphoneos/App.app Payload/
+          zip -r SBA监测.ipa Payload/
+          rm -rf Payload
+
+      - name: 上传 .ipa 文件
+        uses: actions/upload-artifact@v4
+        with:
+          name: SBA监测-ipa
+          path: SBA监测.ipa

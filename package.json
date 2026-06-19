@@ -1,0 +1,24 @@
+{
+  "name": "sba-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "三明站-土壤碳通量数据监控面板",
+  "scripts": {
+    "serve": "node scripts/serve.js",
+    "cap:init": "npx cap init SBA监测 com.sba.diag",
+    "cap:sync": "npx cap sync",
+    "cap:open:ios": "npx cap open ios",
+    "cap:copy": "npx cap copy",
+    "build:icons": "node scripts/gen-icons.js",
+    "build:ios": "node scripts/gen-icons.js && npx cap sync",
+    "build:ipa": "bash scripts/build-ipa.sh"
+  },
+  "dependencies": {
+    "@capacitor/cli": "^8.4.0",
+    "@capacitor/core": "^8.4.0",
+    "@capacitor/ios": "^8.4.0"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.1"
+  }
+}
