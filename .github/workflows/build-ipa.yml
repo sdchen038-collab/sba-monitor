@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +29,12 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.4'
+          xcode-version: '16.2'
+
+      - name: Install iOS 18.2 platform
+        run: |
+          sudo xcodebuild -license accept 2>&1 || true
+          xcodebuild -downloadPlatform iOS -quiet 2>&1
 
       - name: Build .app for iOS device
         working-directory: ios/App
@@ -38,6 +43,7 @@ jobs:
             -scheme App \
             -configuration Release \
             -sdk iphoneos \
+            -destination generic/platform=iOS \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             build
