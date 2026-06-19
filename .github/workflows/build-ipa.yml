@@ -31,16 +31,19 @@ jobs:
         with:
           xcode-version: '16.2'
 
+      - name: List available simulators
+        run: xcrun simctl list runtimes 2>&1 || true
+
       - name: Build .app
         working-directory: ios/App
         run: |
           xcodebuild -project App.xcodeproj \
             -scheme App \
-            -configuration Debug \
+            -configuration Release \
             -destination generic/platform=iOS \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
-            build 2>&1 | tee build.log | tail -20
+            build
 
       - name: Package .ipa
         run: |
