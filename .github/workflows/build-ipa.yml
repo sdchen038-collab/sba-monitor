@@ -31,8 +31,13 @@ jobs:
         with:
           xcode-version: '16.2'
 
-      - name: List available simulators
-        run: xcrun simctl list runtimes 2>&1 || true
+      - name: Accept license & download platform
+        run: |
+          sudo xcodebuild -license accept 2>&1 || true
+          xcodebuild -downloadPlatform iOS -quiet 2>&1 || echo "download done or failed"
+
+      - name: Verify platform
+        run: xcodebuild -showsdks 2>&1
 
       - name: Build .app
         working-directory: ios/App
